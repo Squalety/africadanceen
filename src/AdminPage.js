@@ -6,22 +6,53 @@ const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [selectedTimeframe, setSelectedTimeframe] = useState('all');
+  const [currentIP, setCurrentIP] = useState('Loading...');
 
   const adminPassword = 'admin123'; // В продакшене лучше использовать более безопасный способ
 
   useEffect(() => {
     if (isAuthenticated) {
       loadStats();
+      getCurrentIP();
       // Обновляем статистику каждые 10 секунд
       const interval = setInterval(loadStats, 10000);
       return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
 
+  const getCurrentIP = async () => {
+    try {
+      const response = await fetch('https://ipinfo.io/json');
+      const data = await response.json();
+      setCurrentIP(data.ip || 'Unknown');
+    } catch (error) {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setCurrentIP(data.ip || 'Unknown');
+      } catch (error2) {
+        setCurrentIP('Unknown');
+      }
+    }
+  };
+
   const loadStats = () => {
     const savedStats = localStorage.getItem('clickStats');
     if (savedStats) {
-      setStats(JSON.parse(savedStats));
+      try {
+        const parsedStats = JSON.parse(savedStats);
+        // Обновляем старые записи, добавляя недостающие поля
+        const updatedStats = parsedStats.map(stat => ({
+          ...stat,
+          platform: stat.platform || 'Unknown',
+          language: stat.language || 'Unknown',
+          timezone: stat.timezone || 'Unknown'
+        }));
+        setStats(updatedStats);
+      } catch (error) {
+        console.error('Error parsing stats:', error);
+        setStats([]);
+      }
     }
   };
 
@@ -131,7 +162,13 @@ const AdminPage = () => {
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>Admin Panel - Click Statistics</h1>
+        <div className="header-info">
+          <h1>Admin Panel - Click Statistics</h1>
+          <div className="current-session">
+            <span className="current-ip">Your IP: {currentIP}</span>
+            <span className="last-update">Last update: {new Date().toLocaleTimeString()}</span>
+          </div>
+        </div>
         <div className="admin-controls">
           <select 
             value={selectedTimeframe} 

@@ -73,12 +73,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .admin-header h1 {
   margin: 0;
   background: linear-gradient(135deg, #9945ff, #14f195);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.current-session {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+}
+
+.current-ip {
+  color: #14f195;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.last-update {
+  color: #b8bcc8;
 }
 
 .admin-controls {
