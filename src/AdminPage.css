@@ -91,10 +91,21 @@
   display: flex;
   gap: 15px;
   font-size: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .total-clicks {
   color: #14f195;
+  font-weight: 600;
+}
+
+.mobile-clicks {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.desktop-clicks {
+  color: #0ea5e9;
   font-weight: 600;
 }
 
@@ -215,6 +226,20 @@
 .last-click {
   color: #b8bcc8;
   font-size: 0.8rem;
+}
+
+.click-breakdown {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.click-breakdown span {
+  padding: 4px 8px;
+  background: rgba(20, 20, 35, 0.6);
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

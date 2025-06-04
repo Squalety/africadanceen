@@ -45,25 +45,60 @@ function App() {
     const clickData = {
       buttonName,
       url,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+      userAgent: navigator.userAgent
     };
 
     console.log('🔄 Tracking click:', clickData);
+    console.log('📱 Is mobile device:', clickData.isMobile);
 
     try {
-      // Сохраняем в localStorage
+      // Проверяем доступность localStorage
+      if (typeof(Storage) === "undefined") {
+        console.error('❌ localStorage not supported');
+        window.open(url, '_blank');
+        return;
+      }
+
+      // Сохраняем в localStorage с дополнительными проверками
       const existingStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
       existingStats.push(clickData);
       localStorage.setItem('clickStats', JSON.stringify(existingStats));
       
-      console.log('💾 Stats saved. Total clicks:', existingStats.length);
-      console.log('📊 Saved data:', JSON.stringify(existingStats, null, 2));
+      // Проверяем что данные действительно сохранились
+      const verifyStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
+      console.log('💾 Stats saved. Total clicks:', verifyStats.length);
+      console.log('📊 Last saved item:', verifyStats[verifyStats.length - 1]);
+      
+      // Дополнительная проверка для мобильных
+      if (clickData.isMobile) {
+        console.log('📱 Mobile click verified:', {
+          saved: verifyStats.length > existingStats.length - 1,
+          timestamp: clickData.timestamp
+        });
+      }
+      
     } catch (error) {
       console.error('❌ Error saving to localStorage:', error);
+      // Попытка с простым объектом
+      try {
+        const simpleData = { button: buttonName, time: Date.now() };
+        localStorage.setItem('lastClick', JSON.stringify(simpleData));
+        console.log('🔄 Fallback save successful');
+      } catch (fallbackError) {
+        console.error('❌ Fallback also failed:', fallbackError);
+      }
     }
 
-    // Открываем ссылку
-    window.open(url, '_blank');
+    // Открываем ссылку с задержкой для мобильных устройств
+    if (clickData.isMobile) {
+      setTimeout(() => {
+        window.open(url, '_blank');
+      }, 100);
+    } else {
+      window.open(url, '_blank');
+    }
   };
 
   const copyToClipboard = async (address, walletName) => {
@@ -98,6 +133,10 @@ function App() {
                 className="game-dating-button"
                 style={{ '--button-color': button.color }}
                 onClick={() => trackClick(button.name, button.url)}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  trackClick(button.name, button.url);
+                }}
               >
                 <FiExternalLink className="button-icon" />
                 {button.name}

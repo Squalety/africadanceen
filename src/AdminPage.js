@@ -95,15 +95,28 @@ const AdminPage = () => {
         buttonName: key,
         url: stat.url || 'Unknown URL',
         clicks: 0,
+        mobileClicks: 0,
+        desktopClicks: 0,
         lastClick: null
       };
     }
     acc[key].clicks++;
+    
+    // Подсчитываем мобильные и десктопные клики
+    if (stat.isMobile === true) {
+      acc[key].mobileClicks++;
+    } else {
+      acc[key].desktopClicks++;
+    }
+    
     if (!acc[key].lastClick || new Date(stat.timestamp) > new Date(acc[key].lastClick)) {
       acc[key].lastClick = stat.timestamp;
     }
     return acc;
   }, {});
+
+  const mobileStats = stats.filter(stat => stat.isMobile === true);
+  const desktopStats = stats.filter(stat => stat.isMobile !== true);
 
   return (
     <div className="admin-page">
@@ -112,6 +125,8 @@ const AdminPage = () => {
           <h1>Click Statistics</h1>
           <div className="current-session">
             <span className="total-clicks">Total Clicks: {stats.length}</span>
+            <span className="mobile-clicks">📱 Mobile: {mobileStats.length}</span>
+            <span className="desktop-clicks">🖥️ Desktop: {desktopStats.length}</span>
             <span className="last-update">Last update: {new Date().toLocaleTimeString()}</span>
           </div>
         </div>
@@ -137,6 +152,10 @@ const AdminPage = () => {
                     <div className="click-count">{linkStat.clicks}</div>
                   </div>
                   <div className="link-url">{linkStat.url}</div>
+                  <div className="click-breakdown">
+                    <span>📱 Mobile: {linkStat.mobileClicks}</span>
+                    <span>🖥️ Desktop: {linkStat.desktopClicks}</span>
+                  </div>
                   <div className="last-click">
                     Last click: {linkStat.lastClick ? 
                       new Date(linkStat.lastClick).toLocaleString() : 'Never'}
