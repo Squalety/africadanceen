@@ -31,12 +31,12 @@ function App() {
   const gameDatingButtons = [
     {
       name: 'Game Dating Premium',
-      url: 'https://example.com/game-dating-1',
+      url: 'https://hotsexdatetoday.com/yvzSHTWr?aid=dbhbbagg&kid=gkfahphzgab',
       color: '#ff6b6b'
     },
     {
       name: 'Game Dating VIP',
-      url: 'https://example.com/game-dating-2',
+      url: 'https://findyourcouplehere.com/tPXz4Zyf?aid=dbhbbagg&kid=gkfaxdadhaa',
       color: '#4ecdc4'
     }
   ];
