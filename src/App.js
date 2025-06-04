@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import { FiCopy, FiCheck } from 'react-icons/fi';
+import { FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
 import { FaEthereum } from 'react-icons/fa';
 import { SiTether, SiSolana } from 'react-icons/si';
 
 function App() {
   const [copiedWallet, setCopiedWallet] = useState('');
+  const [userInfo, setUserInfo] = useState({});
 
   const wallets = [
     {
@@ -28,6 +29,125 @@ function App() {
     }
   ];
 
+  const gameDatingButtons = [
+    {
+      name: 'Game Dating Premium',
+      url: 'https://example.com/game-dating-1',
+      color: '#ff6b6b'
+    },
+    {
+      name: 'Game Dating VIP',
+      url: 'https://example.com/game-dating-2',
+      color: '#4ecdc4'
+    }
+  ];
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
+  const getUserInfo = async () => {
+    try {
+      // Пробуем несколько способов получения IP
+      let ipData = null;
+      let geoData = null;
+
+      // Способ 1: ipify.org
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        ipData = await ipResponse.json();
+      } catch (error) {
+        console.log('ipify.org failed, trying alternative...');
+      }
+
+      // Способ 2: httpbin.org (если первый не сработал)
+      if (!ipData) {
+        try {
+          const ipResponse = await fetch('https://httpbin.org/ip');
+          const data = await ipResponse.json();
+          ipData = { ip: data.origin.split(',')[0].trim() };
+        } catch (error) {
+          console.log('httpbin.org failed, trying alternative...');
+        }
+      }
+
+      // Способ 3: ipinfo.io (если предыдущие не сработали)
+      if (!ipData) {
+        try {
+          const ipResponse = await fetch('https://ipinfo.io/json');
+          const data = await ipResponse.json();
+          ipData = { ip: data.ip };
+          geoData = { country_name: data.country };
+        } catch (error) {
+          console.log('ipinfo.io failed...');
+        }
+      }
+
+      // Если у нас есть IP, но нет геоданных, пробуем получить их
+      if (ipData && ipData.ip && !geoData) {
+        try {
+          // Пробуем ip-api.com (бесплатный, без ключа)
+          const geoResponse = await fetch(`http://ip-api.com/json/${ipData.ip}`);
+          const data = await geoResponse.json();
+          if (data.status === 'success') {
+            geoData = { country_name: data.country };
+          }
+        } catch (error) {
+          console.log('ip-api.com failed, trying alternative...');
+        }
+      }
+
+      // Если все еще нет геоданных, пробуем ipapi.co
+      if (ipData && ipData.ip && !geoData) {
+        try {
+          const geoResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+          const data = await geoResponse.json();
+          geoData = { country_name: data.country_name };
+        } catch (error) {
+          console.log('ipapi.co failed...');
+        }
+      }
+
+      setUserInfo({
+        ip: ipData?.ip || 'Unknown',
+        country: geoData?.country_name || 'Unknown',
+        userAgent: navigator.userAgent,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        platform: navigator.platform
+      });
+    } catch (error) {
+      console.error('Error getting user info:', error);
+      setUserInfo({
+        ip: 'Unknown',
+        country: 'Unknown',
+        userAgent: navigator.userAgent,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        platform: navigator.platform
+      });
+    }
+  };
+
+  const trackClick = (buttonName, url) => {
+    const clickData = {
+      buttonName,
+      url,
+      timestamp: new Date().toISOString(),
+      ip: userInfo.ip,
+      country: userInfo.country,
+      userAgent: userInfo.userAgent
+    };
+
+    // Сохраняем в localStorage
+    const existingStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
+    existingStats.push(clickData);
+    localStorage.setItem('clickStats', JSON.stringify(existingStats));
+
+    // Открываем ссылку
+    window.open(url, '_blank');
+  };
+
   const copyToClipboard = async (address, walletName) => {
     try {
       await navigator.clipboard.writeText(address);
@@ -48,6 +168,24 @@ function App() {
             Support my TikTok account africa.dance.en! 
             
           </p>
+        </div>
+
+        {/* Game Dating Section */}
+        <div className="game-dating-section">
+          <h2>Game Dating</h2>
+          <div className="game-dating-grid">
+            {gameDatingButtons.map((button) => (
+              <button
+                key={button.name}
+                className="game-dating-button"
+                style={{ '--button-color': button.color }}
+                onClick={() => trackClick(button.name, button.url)}
+              >
+                <FiExternalLink className="button-icon" />
+                {button.name}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Wallets Section */}
