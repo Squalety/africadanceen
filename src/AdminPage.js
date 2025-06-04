@@ -45,6 +45,20 @@ const AdminPage = () => {
     }
   };
 
+  const addTestClick = () => {
+    const testClick = {
+      buttonName: 'Test Button',
+      url: 'https://test.com',
+      timestamp: new Date().toISOString()
+    };
+    
+    const existingStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
+    existingStats.push(testClick);
+    localStorage.setItem('clickStats', JSON.stringify(existingStats));
+    loadStats();
+    console.log('✅ Test click added:', testClick);
+  };
+
   const exportStats = () => {
     const dataStr = JSON.stringify(stats, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -102,6 +116,7 @@ const AdminPage = () => {
           </div>
         </div>
         <div className="admin-actions">
+          <button onClick={addTestClick} className="test-btn">Add Test Click</button>
           <button onClick={exportStats} className="export-btn">Export JSON</button>
           <button onClick={clearStats} className="clear-btn">Clear Stats</button>
         </div>

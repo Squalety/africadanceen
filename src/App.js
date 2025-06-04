@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
 import { FaEthereum } from 'react-icons/fa';
@@ -6,7 +6,6 @@ import { SiTether, SiSolana } from 'react-icons/si';
 
 function App() {
   const [copiedWallet, setCopiedWallet] = useState('');
-  const [userInfo, setUserInfo] = useState({});
 
   const wallets = [
     {
@@ -42,151 +41,6 @@ function App() {
     }
   ];
 
-  useEffect(() => {
-    getUserInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const parseUserAgent = (userAgent) => {
-    if (userAgent.includes('Windows')) return 'Windows';
-    if (userAgent.includes('Mac OS X')) return 'macOS';
-    if (userAgent.includes('Linux') && !userAgent.includes('Android')) return 'Linux';
-    if (userAgent.includes('Android')) return 'Android';
-    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS';
-    return 'Unknown';
-  };
-
-  const getCountryFromTimezone = (timezone) => {
-    if (!timezone) return 'Unknown';
-    
-    // Точное определение России по всем её временным зонам
-    const russianTimezones = [
-      'Europe/Moscow', 'Europe/Kaliningrad', 'Europe/Samara', 'Europe/Volgograd',
-      'Asia/Yekaterinburg', 'Asia/Omsk', 'Asia/Krasnoyarsk', 'Asia/Irkutsk',
-      'Asia/Yakutsk', 'Asia/Vladivostok', 'Asia/Magadan', 'Asia/Kamchatka',
-      'Asia/Anadyr', 'Asia/Sakhalin', 'Asia/Srednekolymsk', 'Asia/Ust-Nera',
-      'Asia/Chita', 'Asia/Khandyga', 'Asia/Tomsk', 'Asia/Barnaul', 'Asia/Novokuznetsk'
-    ];
-    
-    if (russianTimezones.some(tz => timezone.includes(tz))) {
-      return 'Russia';
-    }
-    
-    // Остальные европейские страны
-    if (timezone.includes('Europe')) {
-      if (timezone.includes('London')) return 'United Kingdom';
-      if (timezone.includes('Paris')) return 'France';
-      if (timezone.includes('Berlin')) return 'Germany';
-      if (timezone.includes('Rome')) return 'Italy';
-      if (timezone.includes('Madrid')) return 'Spain';
-      if (timezone.includes('Amsterdam')) return 'Netherlands';
-      if (timezone.includes('Stockholm')) return 'Sweden';
-      if (timezone.includes('Oslo')) return 'Norway';
-      if (timezone.includes('Helsinki')) return 'Finland';
-      if (timezone.includes('Warsaw')) return 'Poland';
-      if (timezone.includes('Prague')) return 'Czech Republic';
-      if (timezone.includes('Vienna')) return 'Austria';
-      if (timezone.includes('Budapest')) return 'Hungary';
-      if (timezone.includes('Zurich')) return 'Switzerland';
-      if (timezone.includes('Brussels')) return 'Belgium';
-      if (timezone.includes('Copenhagen')) return 'Denmark';
-      if (timezone.includes('Kiev') || timezone.includes('Kyiv')) return 'Ukraine';
-      if (timezone.includes('Minsk')) return 'Belarus';
-      return 'Europe';
-    }
-    
-    // Америки
-    if (timezone.includes('America')) {
-      if (timezone.includes('New_York') || timezone.includes('Chicago') || 
-          timezone.includes('Denver') || timezone.includes('Los_Angeles') ||
-          timezone.includes('Phoenix') || timezone.includes('Anchorage')) return 'United States';
-      if (timezone.includes('Toronto') || timezone.includes('Vancouver') || 
-          timezone.includes('Montreal') || timezone.includes('Edmonton')) return 'Canada';
-      if (timezone.includes('Mexico')) return 'Mexico';
-      if (timezone.includes('Sao_Paulo') || timezone.includes('Rio')) return 'Brazil';
-      if (timezone.includes('Buenos_Aires')) return 'Argentina';
-      if (timezone.includes('Lima')) return 'Peru';
-      if (timezone.includes('Santiago')) return 'Chile';
-      if (timezone.includes('Bogota')) return 'Colombia';
-      return 'Americas';
-    }
-    
-    // Азия (исключая Россию, которая уже обработана)
-    if (timezone.includes('Asia')) {
-      if (timezone.includes('Shanghai') || timezone.includes('Beijing') || timezone.includes('Chongqing')) return 'China';
-      if (timezone.includes('Tokyo')) return 'Japan';
-      if (timezone.includes('Kolkata') || timezone.includes('Mumbai') || timezone.includes('Delhi')) return 'India';
-      if (timezone.includes('Seoul')) return 'South Korea';
-      if (timezone.includes('Bangkok')) return 'Thailand';
-      if (timezone.includes('Singapore')) return 'Singapore';
-      if (timezone.includes('Hong_Kong')) return 'Hong Kong';
-      if (timezone.includes('Taipei')) return 'Taiwan';
-      if (timezone.includes('Manila')) return 'Philippines';
-      if (timezone.includes('Jakarta')) return 'Indonesia';
-      if (timezone.includes('Kuala_Lumpur')) return 'Malaysia';
-      if (timezone.includes('Dubai')) return 'UAE';
-      if (timezone.includes('Tehran')) return 'Iran';
-      if (timezone.includes('Istanbul')) return 'Turkey';
-      return 'Asia';
-    }
-    
-    // Другие континенты
-    if (timezone.includes('Africa')) {
-      if (timezone.includes('Cairo')) return 'Egypt';
-      if (timezone.includes('Lagos')) return 'Nigeria';
-      if (timezone.includes('Johannesburg')) return 'South Africa';
-      return 'Africa';
-    }
-    
-    if (timezone.includes('Australia')) {
-      if (timezone.includes('Sydney') || timezone.includes('Melbourne')) return 'Australia';
-      return 'Australia/Oceania';
-    }
-    
-    if (timezone.includes('Pacific')) {
-      if (timezone.includes('Auckland')) return 'New Zealand';
-      return 'Pacific';
-    }
-    
-    return 'Unknown';
-  };
-
-  const getUserInfo = async () => {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const language = navigator.language;
-    const platform = parseUserAgent(navigator.userAgent);
-    const country = getCountryFromTimezone(timezone);
-    
-    console.log('🕐 Detected timezone:', timezone);
-    console.log('🌍 Detected country:', country);
-    
-    // Базовая информация, которая всегда доступна
-    let userInfo = {
-      ip: 'Local-User',
-      country: country,
-      userAgent: navigator.userAgent,
-      timezone: timezone,
-      language: language,
-      platform: platform
-    };
-
-    console.log('📍 Base user info:', userInfo);
-
-    // Пробуем получить реальный IP (необязательно)
-    try {
-      const response = await fetch('https://httpbin.org/ip');
-      const data = await response.json();
-      if (data.origin) {
-        userInfo.ip = data.origin.split(',')[0].trim();
-        console.log('✅ Got real IP:', userInfo.ip);
-      }
-    } catch (error) {
-      console.log('ℹ️ Could not get real IP, using fallback');
-    }
-
-    setUserInfo(userInfo);
-  };
-
   const trackClick = (buttonName, url) => {
     const clickData = {
       buttonName,
@@ -196,12 +50,17 @@ function App() {
 
     console.log('🔄 Tracking click:', clickData);
 
-    // Сохраняем в localStorage
-    const existingStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
-    existingStats.push(clickData);
-    localStorage.setItem('clickStats', JSON.stringify(existingStats));
-    
-    console.log('💾 Stats saved. Total clicks:', existingStats.length);
+    try {
+      // Сохраняем в localStorage
+      const existingStats = JSON.parse(localStorage.getItem('clickStats') || '[]');
+      existingStats.push(clickData);
+      localStorage.setItem('clickStats', JSON.stringify(existingStats));
+      
+      console.log('💾 Stats saved. Total clicks:', existingStats.length);
+      console.log('📊 Saved data:', JSON.stringify(existingStats, null, 2));
+    } catch (error) {
+      console.error('❌ Error saving to localStorage:', error);
+    }
 
     // Открываем ссылку
     window.open(url, '_blank');
