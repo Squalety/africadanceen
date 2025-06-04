@@ -191,13 +191,7 @@ function App() {
     const clickData = {
       buttonName,
       url,
-      timestamp: new Date().toISOString(),
-      ip: userInfo.ip,
-      country: userInfo.country,
-      userAgent: userInfo.userAgent,
-      platform: userInfo.platform,
-      language: userInfo.language,
-      timezone: userInfo.timezone
+      timestamp: new Date().toISOString()
     };
 
     console.log('🔄 Tracking click:', clickData);
